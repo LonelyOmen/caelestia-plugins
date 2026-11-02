@@ -1,4 +1,4 @@
-# Caelestia plugins by xLonely
+# Caelestia plugins by LonelyOmen
 
 Two small plugins for the [Caelestia shell](https://github.com/caelestia-dots/shell):
 
@@ -14,7 +14,7 @@ installable by copying the directories into `~/.local/share/caelestia/plugins/`.
 ## Quick install (manual)
 
 ```sh
-git clone https://github.com/xLonely/caelestia-plugins.git
+git clone https://github.com/LonelyOmen/caelestia-plugins.git
 mkdir -p ~/.local/share/caelestia/plugins
 
 cp -r caelestia-plugins/plugins/better-lyrics ~/.local/share/caelestia/plugins/
