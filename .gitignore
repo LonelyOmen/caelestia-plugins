@@ -1,0 +1,4 @@
+plugins/astra-strike/engine/bin/
+plugins/astra-strike/engine/target/
+*.pkg.tar.zst
+*.pkg.tar.xz

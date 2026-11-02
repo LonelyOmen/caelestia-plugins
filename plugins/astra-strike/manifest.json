@@ -1,0 +1,28 @@
+{
+    "name": "astra",
+    "displayName": "Astra Strike",
+    "author": "xlonely",
+    "version": "1.0.0",
+    "icon": "rocket_launch",
+    "description": "Astra Strike: a small asteroid game that takes over the desktop, using the bundled space wallpaper as its backdrop.",
+    "tags": [
+        "game",
+        "easter-egg"
+    ],
+    "entryPoints": [
+        {
+            "type": "custom",
+            "source": "AstraStrikeOverlay.qml"
+        },
+        {
+            "type": "quick-toggle",
+            "source": "AstraStrikeToggle.qml",
+            "properties": {
+                "name": "astraStrike",
+                "title": "Astra Strike",
+                "description": "Play Astra Strike",
+                "order": 30
+            }
+        }
+    ]
+}

@@ -1,0 +1,33 @@
+{
+    "name": "BetterLyrics",
+    "displayName": "Better Lyrics",
+    "author": "xlonely",
+    "version": "1.0.0",
+    "icon": "lyrics",
+    "description": "Synced lyrics on the desktop from Better Lyrics, with the shell's LRCLIB/NetEase lyrics as a fallback.",
+    "tags": [
+        "lyrics",
+        "music",
+        "media",
+        "desktop"
+    ],
+    "settings": "settings.qml",
+    "entryPoints": [
+        {
+            "type": "desktop-widget",
+            "source": "DesktopLyrics.qml",
+            "properties": {
+                "layer": "bottom",
+                "overlay": false
+            }
+        },
+        {
+            "type": "desktop-widget",
+            "source": "DesktopLyrics.qml",
+            "properties": {
+                "layer": "top",
+                "overlay": true
+            }
+        }
+    ]
+}

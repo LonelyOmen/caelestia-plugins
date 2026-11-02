@@ -1,0 +1,17 @@
+[package]
+name = "astra-strike"
+version = "0.1.0"
+edition = "2021"
+description = "Asteroids-style easter egg engine for the Caelestia shell"
+publish = false
+
+# No runtime dependencies: the engine is std-only on purpose so the build stays
+# reproducible and offline-capable (cargo build --offline works).
+[dependencies]
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "abort"   # a panic may only ever take down this process, never the shell
+strip = true
