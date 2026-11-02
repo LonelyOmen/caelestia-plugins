@@ -1,7 +1,7 @@
 {
     "name": "astra",
     "displayName": "Astra Strike",
-    "author": "xlonely",
+    "author": "xLonely",
     "version": "1.0.0",
     "icon": "rocket_launch",
     "description": "Astra Strike: a small asteroid game that takes over the desktop, using the bundled space wallpaper as its backdrop.",
