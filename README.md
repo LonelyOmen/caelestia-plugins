@@ -1,4 +1,4 @@
-# Caelestia plugins by LonelyOmen
+# Caelestia plugins by xLonely
 
 Two small plugins for the [Caelestia shell](https://github.com/caelestia-dots/shell):
 
