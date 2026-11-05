@@ -243,6 +243,7 @@ if ((WITH_OVERLAY)); then
             [[ "$name" == Wallpapers.qml ]] && continue
             ln -s "$entry" "$USER_SHELL/services/$name"
         done
+        printf '%s\n' "$SHELL_BASE" > "$USER_SHELL/.wall-seperator-overlay"
     fi
 
     if ((${#OVERLAY_REPLACEMENTS[@]})); then

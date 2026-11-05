@@ -78,6 +78,26 @@ Reload Caelestia after installing the overlay:
 caelestia shell -r
 ```
 
+## Uninstall
+
+Disable Wall-Seperator in **Nexus → Plugins** first. Review what will change with a dry run:
+
+```sh
+./plugins/wall-seperator/uninstall.sh --dry-run --with-shell-overlay
+```
+
+To remove the plugin and helper but keep the launcher integration, run the script without options.
+To also restore the shell QML files and remove the install-created overlay links where safe, run:
+
+```sh
+./plugins/wall-seperator/uninstall.sh --with-shell-overlay
+```
+
+The uninstaller asks before changing anything and saves a safety copy of the plugin and helper. It
+restores the original QML files from installer backups when available; otherwise it only reverts
+unchanged bundled files. It preserves edited files, leaves `plugins.json`, `shell.json`, and system
+config files alone, and does not uninstall `ffmpeg` or `python-pillow`.
+
 The plugin uses the wallpaper entries exposed by the installed shell. If that shell does not expose
 video files through its `Wallpapers` service, the plugin's Live filter will have no videos to show.
 The modified `>wallpaper` carousel and Static/Live launcher filters described in this repository
