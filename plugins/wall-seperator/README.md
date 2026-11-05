@@ -61,7 +61,8 @@ Run the installer with its explicit overlay option:
 The installer shows which QML files it will change and asks before proceeding. It backs up any
 different versions of those files under `~/.local/state/caelestia/wall-seperator/backups/`. If no
 user shell config exists, it creates an overlay linked to the installed shell config; it refuses to
-follow symlinks for the files it replaces, and leaves `shell.json` and unrelated shell files alone.
+follow unrelated symlinks for the files it replaces (a link to the matching installed shell file
+is backed up and replaced locally), and leaves `shell.json` and unrelated shell files alone.
 On systems where the shell config is outside the XDG config directories, create the user shell
 config from the installed Caelestia config first, then rerun the installer.
 

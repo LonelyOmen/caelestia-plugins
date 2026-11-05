@@ -94,6 +94,7 @@ fi
 SHELL_BASE=""
 SHELL_WILL_BE_CREATED=0
 OVERLAY_REPLACEMENTS=()
+OVERLAY_SYSTEM_LINKS=()
 OVERLAY_FILES=(
     services/Wallpapers.qml
     modules/launcher/Content.qml
@@ -106,19 +107,20 @@ if ((WITH_OVERLAY)); then
     [[ -t 0 ]] || die "--with-shell-overlay requires an interactive terminal so you can review and approve the shell-file changes."
     [[ -d "$OVERLAY_SOURCE" ]] || die "The bundled user-config overlay is missing."
 
+    IFS=: read -r -a CONFIG_DIRS <<< "${XDG_CONFIG_DIRS:-/etc/xdg}"
+    for config_base in "${CONFIG_DIRS[@]}" /etc/xdg; do
+        candidate="$config_base/quickshell/caelestia"
+        if [[ -f "$candidate/shell.qml" ]]; then
+            SHELL_BASE="$candidate"
+            break
+        fi
+    done
+
     if [[ -L "$USER_SHELL" ]]; then
         die "$USER_SHELL is a symlink. The overlay was not installed; use a real user config directory so no system files can be changed."
     fi
 
     if [[ ! -d "$USER_SHELL" ]]; then
-        IFS=: read -r -a CONFIG_DIRS <<< "${XDG_CONFIG_DIRS:-/etc/xdg}"
-        for config_base in "${CONFIG_DIRS[@]}" /etc/xdg; do
-            candidate="$config_base/quickshell/caelestia"
-            if [[ -f "$candidate/shell.qml" ]]; then
-                SHELL_BASE="$candidate"
-                break
-            fi
-        done
         [[ -n "$SHELL_BASE" ]] || die "Could not find the installed Caelestia shell config. Create $USER_SHELL from your shell package's config, then rerun this installer."
         [[ ! -L "$SHELL_BASE" ]] || die "The installed shell config is a symlink. No files were changed."
         for dir in modules modules/launcher modules/launcher/items services; do
@@ -130,6 +132,10 @@ if ((WITH_OVERLAY)); then
         SHELL_WILL_BE_CREATED=1
     else
         [[ -f "$USER_SHELL/shell.qml" ]] || die "$USER_SHELL exists but has no shell.qml. It was left untouched; complete your user shell config before installing the overlay."
+        if [[ -z "$SHELL_BASE" && -L "$USER_SHELL/shell.qml" ]]; then
+            shell_target="$(readlink -f -- "$USER_SHELL/shell.qml" 2>/dev/null || true)"
+            [[ -n "$shell_target" ]] && SHELL_BASE="$(dirname -- "$shell_target")"
+        fi
         for dir in modules modules/launcher modules/launcher/items services; do
             [[ ! -L "$USER_SHELL/$dir" ]] || die "$USER_SHELL/$dir is a symlink. No files were changed. Make a local copy of that directory before installing the overlay."
         done
@@ -139,8 +145,16 @@ if ((WITH_OVERLAY)); then
         src="$OVERLAY_SOURCE/$rel"
         [[ -f "$src" ]] || die "Missing overlay file: $src"
         dest="$USER_SHELL/$rel"
-        [[ ! -L "$dest" ]] || die "$dest is a symlink. No files were changed. Make a local copy before installing the overlay."
-        if [[ -e "$dest" ]] && ! cmp -s "$src" "$dest"; then
+        if [[ -L "$dest" ]]; then
+            expected="$SHELL_BASE/$rel"
+            actual_target="$(readlink -f -- "$dest" 2>/dev/null || true)"
+            expected_target="$(readlink -f -- "$expected" 2>/dev/null || true)"
+            [[ -n "$SHELL_BASE" && -n "$actual_target" && "$actual_target" == "$expected_target" ]] || die "$dest is a symlink outside the matching installed shell file. It was left untouched."
+            if ! cmp -s "$src" "$dest"; then
+                OVERLAY_REPLACEMENTS+=("$rel")
+                OVERLAY_SYSTEM_LINKS+=("$rel")
+            fi
+        elif [[ -e "$dest" ]] && ! cmp -s "$src" "$dest"; then
             OVERLAY_REPLACEMENTS+=("$rel")
         fi
     done
@@ -251,7 +265,11 @@ if ((WITH_OVERLAY)); then
         for rel in "${OVERLAY_REPLACEMENTS[@]}"; do
             backup_file="$BACKUP_DIR/user-config/$rel"
             mkdir -p "$(dirname -- "$backup_file")"
-            cp -a "$USER_SHELL/$rel" "$backup_file"
+            if [[ -L "$USER_SHELL/$rel" ]]; then
+                cp -L "$USER_SHELL/$rel" "$backup_file"
+            else
+                cp -a "$USER_SHELL/$rel" "$backup_file"
+            fi
         done
         printf 'Backed up replaced shell files under: %s/user-config\n' "$BACKUP_DIR"
     fi
@@ -260,6 +278,12 @@ if ((WITH_OVERLAY)); then
         dest="$USER_SHELL/$rel"
         mkdir -p "$(dirname -- "$dest")"
         if [[ ! -e "$dest" ]] || ! cmp -s "$OVERLAY_SOURCE/$rel" "$dest"; then
+            for system_link in "${OVERLAY_SYSTEM_LINKS[@]}"; do
+                if [[ "$system_link" == "$rel" ]]; then
+                    rm -- "$dest"
+                    break
+                fi
+            done
             install -m 644 "$OVERLAY_SOURCE/$rel" "$dest"
         fi
     done
