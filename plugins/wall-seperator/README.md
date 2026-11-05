@@ -23,11 +23,13 @@ wallpaper grid appear under **Nexus → Wallpaper & style**.
 2. Install the plugin and its metadata helper:
 
    ```sh
-   mkdir -p ~/.local/share/caelestia/plugins
-   cp -r plugins/wall-seperator ~/.local/share/caelestia/plugins/
-   install -Dm755 plugins/wall-seperator/tools/wall-seperator-metadata \
-     ~/.local/bin/wall-seperator-metadata
+   ./plugins/wall-seperator/install.sh
    ```
+
+   It leaves an existing plugin or helper untouched. If you intentionally want to update an older
+   install, use `./plugins/wall-seperator/install.sh --update`; it backs up the old plugin/helper
+   under `~/.local/state/caelestia/wall-seperator/backups/` before updating. The installer does not
+   use `sudo` or change shell files in the default mode.
 
 3. Install the helper dependencies. On Arch Linux:
 
@@ -50,22 +52,18 @@ The plugin alone adds the Nexus page and Utilities shortcut. The launcher carous
 filters, and video entries in Caelestia's wallpaper service come from the separate per-user overlay
 in `user-config/`.
 
-On Arch's default Caelestia config path, set up a user copy of the shell config if you do not already
-have one, then copy in the overlay:
+Run the installer with its explicit overlay option:
 
 ```sh
-mkdir -p ~/.config/quickshell
-if [ ! -d ~/.config/quickshell/caelestia ]; then
-  cp -a /etc/xdg/quickshell/caelestia ~/.config/quickshell/
-fi
-cp -a plugins/wall-seperator/user-config/. ~/.config/quickshell/caelestia/
+./plugins/wall-seperator/install.sh --with-shell-overlay
 ```
 
-If `~/.config/quickshell/caelestia` already exists, back it up first. Ensure its `modules/launcher`
-and `services` directories are local directories rather than symlinks before copying the overlay;
-otherwise the copy could follow a symlink into the system config. On systems where Caelestia's
-config is installed somewhere other than `/etc/xdg/quickshell/caelestia`, copy that installed
-config instead.
+The installer shows which QML files it will change and asks before proceeding. It backs up any
+different versions of those files under `~/.local/state/caelestia/wall-seperator/backups/`. If no
+user shell config exists, it starts from the installed system config. It refuses to follow symlinks
+for the affected directories or files, and leaves `shell.json` and unrelated shell files alone.
+On systems where the shell config is outside the XDG config directories, create the user shell
+config from the installed Caelestia config first, then rerun the installer.
 
 To use the official crossfade transition, merge this setting into the existing `background` object
 in `~/.config/caelestia/shell.json` (do not replace the rest of that object):
