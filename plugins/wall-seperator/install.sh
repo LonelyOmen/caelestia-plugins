@@ -153,7 +153,7 @@ if ((WITH_OVERLAY)); then
         printf '  - no existing files differ\n'
     fi
     if ((SHELL_WILL_BE_CREATED)); then
-        printf 'A user-local copy of the installed shell config will be created from %s.\n' "$SHELL_BASE"
+        printf 'An update-linked user overlay will be created from %s; unchanged shell files will stay linked to the installed config.\n' "$SHELL_BASE"
     fi
     printf 'The installer will not edit ~/.config/caelestia/shell.json or restart the running shell.\n'
     read -r -p 'Install this shell overlay? [y/N] ' answer
@@ -203,7 +203,46 @@ fi
 if ((WITH_OVERLAY)); then
     if ((SHELL_WILL_BE_CREATED)); then
         mkdir -p "$(dirname -- "$USER_SHELL")"
-        cp -a "$SHELL_BASE" "$USER_SHELL"
+        mkdir -p "$USER_SHELL/modules/launcher/items" "$USER_SHELL/services"
+
+        for entry in "$SHELL_BASE"/*; do
+            [[ -e "$entry" ]] || continue
+            name="${entry##*/}"
+            case "$name" in
+                modules|services) continue ;;
+            esac
+            ln -s "$entry" "$USER_SHELL/$name"
+        done
+
+        for entry in "$SHELL_BASE/modules"/*; do
+            [[ -e "$entry" ]] || continue
+            name="${entry##*/}"
+            [[ "$name" == launcher ]] && continue
+            ln -s "$entry" "$USER_SHELL/modules/$name"
+        done
+
+        for entry in "$SHELL_BASE/modules/launcher"/*; do
+            [[ -e "$entry" ]] || continue
+            name="${entry##*/}"
+            case "$name" in
+                Content.qml|WallpaperList.qml|ColorFilterBar.qml|items) continue ;;
+            esac
+            ln -s "$entry" "$USER_SHELL/modules/launcher/$name"
+        done
+
+        for entry in "$SHELL_BASE/modules/launcher/items"/*; do
+            [[ -e "$entry" ]] || continue
+            name="${entry##*/}"
+            [[ "$name" == WallpaperItem.qml ]] && continue
+            ln -s "$entry" "$USER_SHELL/modules/launcher/items/$name"
+        done
+
+        for entry in "$SHELL_BASE/services"/*; do
+            [[ -e "$entry" ]] || continue
+            name="${entry##*/}"
+            [[ "$name" == Wallpapers.qml ]] && continue
+            ln -s "$entry" "$USER_SHELL/services/$name"
+        done
     fi
 
     if ((${#OVERLAY_REPLACEMENTS[@]})); then
@@ -232,4 +271,5 @@ printf '  2. Install ffmpeg and python-pillow if video thumbnails are needed (Ar
 printf '  3. Reload Caelestia with: caelestia shell -r\n'
 if ((WITH_OVERLAY)); then
     printf '  4. Optional: merge "wallpaperTransition": "Crossfade" into the existing background object in %s/shell.json.\n' "$CONFIG_HOME/caelestia"
+    printf '  5. The five bundled QML overrides are version-specific and may need updating after Caelestia changes.\n'
 fi

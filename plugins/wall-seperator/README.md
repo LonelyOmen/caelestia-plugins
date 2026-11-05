@@ -60,8 +60,8 @@ Run the installer with its explicit overlay option:
 
 The installer shows which QML files it will change and asks before proceeding. It backs up any
 different versions of those files under `~/.local/state/caelestia/wall-seperator/backups/`. If no
-user shell config exists, it starts from the installed system config. It refuses to follow symlinks
-for the affected directories or files, and leaves `shell.json` and unrelated shell files alone.
+user shell config exists, it creates an overlay linked to the installed shell config; it refuses to
+follow symlinks for the files it replaces, and leaves `shell.json` and unrelated shell files alone.
 On systems where the shell config is outside the XDG config directories, create the user shell
 config from the installed Caelestia config first, then rerun the installer.
 
@@ -85,5 +85,13 @@ are a separate, user-local shell integration; installing this plugin alone does 
 the launcher's `>wallpaper` view.
 
 The metadata helper scans the XDG Pictures directory's `Wallpapers` and `Live-Wallpapers` folders
-by default. It does not transcode or alter wallpaper files. The user-config overlay is version
-specific to the installed Caelestia shell and may need adapting after shell updates.
+by default. It does not transcode or alter wallpaper files.
+
+### After Caelestia shell updates
+
+On a fresh overlay install, unmodified shell files are linked to the installed config, so package
+updates reach them. The five files in `user-config/` replace shell files and remain local copies;
+they may need adapting when Caelestia changes its QML APIs. Review the new shell versions before
+reapplying the overlay. `./plugins/wall-seperator/install.sh --update --with-shell-overlay` backs up
+and reapplies the bundled files, but it does not merge upstream changes into them. Existing user
+configs keep their current copy/symlink arrangement.
