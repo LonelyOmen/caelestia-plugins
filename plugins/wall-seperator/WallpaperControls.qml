@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import Caelestia.Images
 import Caelestia.Config
 import Caelestia.I18n
 import Caelestia.Models
@@ -259,11 +260,12 @@ ColumnLayout {
                 radius: Tokens.rounding.medium
                 color: Colours.tPalette.m3surfaceContainer
 
-                CachingImage {
+                Image {
                     anchors.fill: parent
-                    path: root.isLive(String(card.modelData.path))
+                    source: IUtils.urlForPath(root.isLive(String(card.modelData.path))
                         ? `${Paths.home}/.cache/caelestia/live_thumbs/${String(card.modelData.path).split("/").pop()}.jpg`
-                        : String(card.modelData.path)
+                        : String(card.modelData.path), Image.PreserveAspectCrop)
+                    asynchronous: true
                     smooth: true
                     fillMode: Image.PreserveAspectCrop
                 }
