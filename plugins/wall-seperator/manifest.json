@@ -1,0 +1,35 @@
+{
+    "name": "wallseperator",
+    "displayName": "Wall-Seperator",
+    "author": "xLonely",
+    "version": "1.0.0",
+    "icon": "wallpaper",
+    "description": "A wallpaper library with live/static filters, color filters, format and resolution details, and quick access to Caelestia's native picker.",
+    "tags": [
+        "wallpaper",
+        "video",
+        "library",
+        "color"
+    ],
+    "settings": "settings.qml",
+    "entryPoints": [
+        {
+            "type": "quick-toggle",
+            "source": "WallSeperatorToggle.qml",
+            "properties": {
+                "name": "wallSeperator",
+                "title": "Wall-Seperator",
+                "description": "Open the wallpaper library",
+                "order": 38
+            }
+        },
+        {
+            "type": "page-extension",
+            "source": "WallpaperControls.qml",
+            "properties": {
+                "page": "wallpaper",
+                "order": 20
+            }
+        }
+    ]
+}
