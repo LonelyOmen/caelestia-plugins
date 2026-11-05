@@ -4,7 +4,6 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
-import Caelestia.Images
 import Caelestia.Config
 import Caelestia.I18n
 import Caelestia.Models
@@ -60,6 +59,11 @@ ColumnLayout {
 
     function isLive(path: string): bool {
         return /\.(mp4|m4v|mkv|webm|avi|mov)$/i.test(path);
+    }
+
+    function localImageUrl(path: string): string {
+        const value = String(path || "");
+        return value.startsWith("file://") ? value : `file://${value}`;
     }
 
     function metadataFor(path: string): var {
@@ -133,7 +137,7 @@ ColumnLayout {
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
     }
 
-    ButtonRow {
+    Row {
         Layout.alignment: Qt.AlignHCenter
         spacing: Tokens.spacing.small
 
@@ -262,9 +266,9 @@ ColumnLayout {
 
                 Image {
                     anchors.fill: parent
-                    source: IUtils.urlForPath(root.isLive(String(card.modelData.path))
+                    source: root.localImageUrl(root.isLive(String(card.modelData.path))
                         ? `${Paths.home}/.cache/caelestia/live_thumbs/${String(card.modelData.path).split("/").pop()}.jpg`
-                        : String(card.modelData.path), Image.PreserveAspectCrop)
+                        : String(card.modelData.path))
                     asynchronous: true
                     smooth: true
                     fillMode: Image.PreserveAspectCrop
