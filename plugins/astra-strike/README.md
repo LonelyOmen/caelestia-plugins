@@ -29,8 +29,9 @@ cargo install --path engine
 
 That installs `astra-strike` into `~/.cargo/bin` (also expected to be in `PATH`).
 
-The QML side invokes `astra-strike` from `PATH`; it does not bundle a prebuilt binary because the
-engine is architecture-specific.
+The QML side prefers `engine/bin/astra-strike` when present, then falls back to `astra-strike` in
+`PATH`. It does not bundle a prebuilt binary because the engine is architecture-specific. If
+neither executable can start, the preview and overlay are dismissed and the shell shows an error.
 
 ## Install the plugin
 
@@ -43,7 +44,9 @@ cp -r astra-strike ~/.local/share/caelestia/plugins/
 Then enable **Astra Strike** from Nexus → Plugins, or add `xlonely/astra` to
 `~/.config/caelestia/plugins.json`.
 
-The plugin adds a quick toggle and an IPC handler:
+The plugin adds a quick toggle and an IPC handler. Astra Strike runs one game session on the first
+available screen, including on multi-monitor desktops, so there is a single score and keyboard
+focus target.
 
 ```sh
 qs -c caelestia ipc call astra toggle

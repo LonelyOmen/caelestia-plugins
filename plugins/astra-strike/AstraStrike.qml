@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Caelestia
 import qs.services
 import xlonely.astra
 
@@ -32,6 +33,11 @@ Item {
     // directory named after its id (for example `xlonely-astra`).
     readonly property string spaceWallpaper: String(Qt.resolvedUrl("assets/Gravitation.png")).replace(/^file:\/\//, "").split("?")[0]
 
+    // Prefer a build installed alongside the plugin, where it remains
+    // discoverable even when the compositor's PATH omits ~/.local/bin.
+    readonly property string bundledEngine: CUtils.toLocalFile(Qt.resolvedUrl("engine/bin/astra-strike"))
+    readonly property string engineCommand: CUtils.fileExists(root.bundledEngine) ? root.bundledEngine : "astra-strike"
+
     signal started
     signal stopped
 
@@ -51,8 +57,12 @@ Item {
         root.started();
     }
 
+    function engineFailed(): void {
+        root.stop();
+    }
+
     function stop(): void {
-        if (!root.active)
+        if (!root.active && !root.ownsWallpaperPreview)
             return;
 
         // Flip first: the overlay watches `active` and tears its window down

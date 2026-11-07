@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Shapes
 import Quickshell
 import Quickshell.Io
+import Caelestia
 import Caelestia.Config
 import qs.components
 import qs.services
@@ -49,6 +50,7 @@ Item {
     property int lives: 3
     property bool over: false
     property bool hintVisible: true
+    property bool engineStarted: false
 
     focus: true
 
@@ -67,20 +69,42 @@ Item {
         // Tied to the singleton: going inactive tears the process down, and
         // its stdin EOF is what makes the engine exit. No daemon, no leak.
         running: AstraStrike.active
-        command: ["astra-strike"]
+        command: [AstraStrike.engineCommand]
         stdinEnabled: true
 
         stdout: SplitParser {
             onRead: line => root.applyFrame(line)
         }
 
-        onStarted: root.sendSize()
+        onStarted: {
+            root.engineStarted = true;
+            startupTimeout.stop();
+            root.sendSize();
+        }
 
         onExited: (exitCode, exitStatus) => {
             // If the engine dies on its own (missing binary, crash), do not
             // leave a frozen frame on screen - hand the desktop back.
-            if (AstraStrike.active)
+            if (AstraStrike.active) {
+                Toaster.toast("Astra Strike stopped", `The game engine exited with code ${exitCode}.`, "error");
                 AstraStrike.stop();
+            }
+        }
+    }
+
+    // Process does not emit exited when an executable cannot be started on
+    // some Quickshell versions. Bound startup and return control to the
+    // desktop with a visible error if onStarted never arrives.
+    Timer {
+        id: startupTimeout
+        interval: 2000
+        running: AstraStrike.active && !root.engineStarted
+
+        onTriggered: {
+            if (AstraStrike.active && !root.engineStarted) {
+                Toaster.toast("Astra Strike engine unavailable", `Could not start ${AstraStrike.engineCommand}. Build the engine or put astra-strike in PATH.`, "error");
+                AstraStrike.engineFailed();
+            }
         }
     }
 

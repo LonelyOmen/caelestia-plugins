@@ -18,13 +18,22 @@ import xlonely.astra
 // every instance - so an inactive game costs no surface, no renderer and no
 // input handling at all.
 Variants {
-    model: AstraStrike.active ? Quickshell.screens : []
+    // One game session owns one engine and one exclusive keyboard focus.
+    // Keep its surface on the first available screen instead of creating a
+    // separate process and competing focus target on every monitor.
+    model: AstraStrike.active && Quickshell.screens.length > 0 ? [Quickshell.screens[0]] : []
+
+    function onUnload(): void {
+        AstraStrike.stop();
+    }
+
+    Component.onDestruction: AstraStrike.stop()
 
     StyledWindow {
         id: root
         required property ShellScreen modelData
         screen: modelData
-        name: "drawers"
+        name: "astra-strike"
         WlrLayershell.exclusionMode: ExclusionMode.Ignore
         WlrLayershell.layer: WlrLayer.Bottom
         // The game is a temporary full-screen takeover; take the keyboard

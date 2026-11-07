@@ -4,7 +4,7 @@
     "author": "xLonely",
     "version": "1.0.0",
     "icon": "rocket_launch",
-    "description": "Astra Strike: a small asteroid game that takes over the desktop, using the bundled space wallpaper as its backdrop.",
+    "description": "To play on Arch:\n\n1. Install Astra Strike in Nexus. Open a terminal and run:\n\nsudo pacman -S --needed rust\n\n2. Build the game engine. In a terminal, run:\n\n~/.local/share/caelestia/plugins/xlonely-astra/engine/build.sh\n\n3. In Nexus → Plugins, enable Astra Strike, then use its rocket quick toggle. The engine is built inside the plugin; no separate PATH setup is needed.",
     "tags": [
         "game",
         "easter-egg"
